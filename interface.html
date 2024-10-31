@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Chat Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Gradient Background */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.125);
+        }
+
+        /* Hover and Transition Effects */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Shimmer Loading Effect */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .shimmer-loader {
+            background: linear-gradient(to right, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite linear;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl glass-container p-6 shadow-2xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-white mb-2 flex items-center justify-center">
+                <i class="fas fa-robot mr-4 text-purple-300"></i>
+                AI Video Companion
+                <i class="fas fa-video ml-4 text-purple-300"></i>
+            </h1>
+            <p class="text-purple-100 text-lg">Intelligent Video Understanding Platform</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Video Upload Section -->
+            <div class="bg-white/10 rounded-xl p-6 hover-lift">
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                    <i class="fas fa-upload mr-3 text-purple-300"></i>
+                    Video Upload
+                </h2>
+                
+                <div class="text-center">
+                    <input 
+                        type="file" 
+                        id="videoInput" 
+                        accept="video/*" 
+                        class="hidden"
+                    >
+                    <button 
+                        id="uploadBtn" 
+                        class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 flex items-center justify-center mx-auto space-x-2"
+                    >
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Choose Video</span>
+                    </button>
+                    <p id="fileName" class="text-purple-200 mt-2 truncate"></p>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div 
+                    id="uploadProgress" 
+                    class="mt-4 h-2 bg-purple-200 rounded-full hidden"
+                >
+                    <div 
+                        id="uploadProgressBar" 
+                        class="h-full bg-purple-600 rounded-full" 
+                        style="width: 0%;"
+                    ></div>
+                </div>
+            </div>
+
+            <!-- Video Preview Section -->
+            <div 
+                id="videoPreviewSection" 
+                class="bg-white/10 rounded-xl p-6 hover-lift hidden"
+            >
+                <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                    <i class="fas fa-film mr-3 text-purple-300"></i>
+                    Video Preview
+                </h2>
+                <video 
+                    id="videoPreview" 
+                    controls 
+                    class="w-full rounded-lg shadow-lg"
+                ></video>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div 
+            id="chatSection" 
+            class="mt-6 bg-white/10 rounded-xl p-6 hover-lift hidden"
+        >
+            <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                <i class="fas fa-comments mr-3 text-purple-300"></i>
+                AI Conversation
+            </h2>
+
+            <!-- Chat Messages Container -->
+            <div 
+                id="chatMessages" 
+                class="h-64 overflow-y-auto bg-white/5 p-4 rounded-lg mb-4 space-y-3"
+            ></div>
+
+            <!-- Chat Input -->
+            <div class="flex space-x-2">
+                <input 
+                    type="text" 
+                    id="chatInput" 
+                    placeholder="Ask me anything about the video..." 
+                    class="flex-grow p-3 bg-white/10 text-white border-2 border-purple-300 rounded-full focus:outline-none focus:border-purple-500 transition duration-300"
+                >
+                <button 
+                    id="sendBtn" 
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 flex items-center space-x-2"
+                >
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // [Previous JavaScript remains the same as in the last example]
+        // Enhance with additional UI interactions and animations
+
+        // Enhanced Message Appending
+        function appendMessage(sender, message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add(
+                'p-3', 'rounded-xl', 'max-w-[80%]', 'break-words',
+                sender === 'user' 
+                    ? 'bg-purple-500 text-white self-end ml-auto' 
+                    : 'bg-white/20 text-white self-start mr-auto'
+            );
+            
+            const containerDiv = document.createElement('div');
+            containerDiv.classList.add(
+                'flex', 'items-end', 'space-x-2', 'mb-2',
+                sender === 'user' ? 'flex-row-reverse' : ''
+            );
+
+            const icon = document.createElement('i');
+            icon.classList.add(
+                'fas', 
+                sender === 'user' ? 'fa-user' : 'fa-robot',
+                'text-xl', 'opacity-70'
+            );
+
+            containerDiv.innerHTML = `
+                ${icon.outerHTML}
+                ${messageElement.outerHTML.replace('></div>', `>${message}</div>`)}
+            `;
+
+            chatMessages.appendChild(containerDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Optional: Add subtle animation
+            containerDiv.style.opacity = '0';
+            setTimeout(() => {
+                containerDiv.style.transition = 'opacity 0.3s';
+                containerDiv.style.opacity = '1';
+            }, 50);
+        }
+
+        // Add Loading State to Buttons
+        function setButtonLoading(button, isLoading) {
+            if (isLoading) {
+                button.innerHTML = `
+                    <div class="animate-spin mr-2">
+                        <i class="fas fa-spinner"></i>
+                    </div>
+                    Processing...
+                `;
+                button.disabled = true;
+            } else {
+                button.innerHTML = `
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Send</span>
+                `;
+                button.disabled = false;
+            }
+        }
+
+        // Error Handling Toast
+        function showErrorToast(message) {
+            const toast = document.createElement('div');
+            toast.classList.add(
+                'fixed', 'top-4', 'right-4', 'bg-red-500', 'text-white',
+                'p-4', 'rounded-lg', 'shadow-lg', 'z-50', 'transition', 'duration-300'
+            );
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
